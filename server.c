@@ -184,11 +184,35 @@ void quit() {
     exit(0);
 }
 
+
+char *itoa(int number) {
+  char *destination;
+  destination = (char *) malloc(32);
+  int count = 0;
+  do {
+    int digit = number % 10;
+    destination[count++] = (digit > 9) ? digit - 10 +'A' : digit + '0';
+  } while ((number /= 10) != 0);
+  destination[count] = '\0';
+  int i;
+  for (i = 0; i < count / 2; ++i) {
+    char symbol = destination[i];
+    destination[i] = destination[count - i - 1];
+    destination[count - i - 1] = symbol;
+  }
+  return destination;
+}
+
 void quitWithLog() {
     clock_t end = clock();
     char tmp[512]={0};
-    double time_spent = (double) (end - begin) / CLOCKS_PER_SEC;
-    sprintf(tmp,"Завершение работы сервера.\nСервер работал: %f с\nОбслуженные запросы: %d\nТекущее время: %s\nКоличество обработанных запросов: %d\nКоличество ошибочных запросов: %d\n", time_spent, count, currentTimestamp(), good, bad);
+    double time_spent = (double) (end - begin) / CLOCKS_PER_SEC; 
+    //sprintf(tmp,"Сервер работал: %f с\nОбслуженные запросы: %d\nТекущее время: %s\nКоличество обработанных запросов: %d\nКоличество ошибочных запросов: %d\n", time_spent, count, currentTimestamp(), good, bad);
+    strcat(tmp,"Сервер работал: \0"); strcat(tmp, itoa(time_spent)); strcat(tmp,"\nОбслуженные запросы: \0"); 
+    strcat(tmp, itoa(count)); strcat(tmp,"\nТекущее время: \0"); strcat(tmp, currentTimestamp()); 
+    strcat(tmp,"\nКоличество обработанных запросов: \0"); strcat(tmp, itoa(good)); 
+    strcat(tmp,"\nКоличество ошибочных запросов: \0"); strcat(tmp, itoa(bad));
+ 
     write(fileno(logFile),tmp,strlen(tmp));
     write(STDOUT_FILENO,tmp,strlen(tmp));
 }
